@@ -1,18 +1,18 @@
 #include <stdio.h>
 
 int time_to_int(char*);
-void time_to_text(int);
+void time_to_text(int, FILE*);
 
 int main(void){
-    char *time_str = "00:58:08,886";
-    int delay = 300; //ms
+    char *time_str = "00:58:08,286";
+    int delay = -300; //ms
     int time_in_ms = time_to_int(time_str);
 
     printf("Time in milliseconds = %d\n", time_in_ms);
 
-    time_to_text(time_in_ms + delay);
+    time_to_text(time_in_ms + delay, stdout);
     putchar('\n');
-    
+
     return 0;
 }
 
@@ -31,13 +31,13 @@ int time_to_int(char *time_str){
 }
 
 /* 
- * Args: int
+ * Args: int, FILE *
  * Returns: void
- * Time given in milliseconds is 
- * printed as: hh:mm:ss,xxx
+ * Time given in milliseconds is printed as: hh:mm:ss,xxx 
+ * in the stream given.
  */
-void time_to_text(int time_ms){
-    char time[13];
+void time_to_text(int time_ms, FILE *fp){
+    char time_str[13];
     int hh, mm, ss, xxx;
 
     hh = time_ms / (3600 * 1000);
@@ -47,7 +47,7 @@ void time_to_text(int time_ms){
     ss = time_ms / 1000;
     xxx = time_ms % 1000;
 
-    sprintf(time, "%02d:%02d:%02d,%03d", hh, mm, ss, xxx);
+    sprintf(time_str, "%02d:%02d:%02d,%03d", hh, mm, ss, xxx);
 
-    printf("%s", time);
+    fprintf(fp, "%s", time_str);
 }
