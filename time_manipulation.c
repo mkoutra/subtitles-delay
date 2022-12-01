@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-int time_to_int(char*);
+int time_to_int(const char*);
 void time_to_text(int, FILE*);
 
 int main(void){
@@ -22,7 +22,7 @@ int main(void){
  * Reads time with format: hh:mm:ss,xxx
  * and transform it to milliseconds
  */ 
-int time_to_int(char *time_str){
+int time_to_int(const char *time_str){
     int hh, mm, ss, xxx, total;
 
     sscanf(time_str, "%d:%d:%d,%d", &hh, &mm, &ss, &xxx);

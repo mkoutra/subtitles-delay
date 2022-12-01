@@ -6,13 +6,14 @@
 #define TIME_CHARS 13 // Time is expressed with 12 characters (hh:mm:ss,xxx).
 #define SUB_COUNTER_CHARS 6 // characters to store the subtitle counter. Most srt files contain ~1200 subtitles.
 
-int time_to_int(char*);
+int time_to_int(const char*);
 void time_to_text(int, FILE*);
 
 int main(void){
     char *sub_file_name = "subfile.srt";
-    char *new_sub_file_name = "test_file.txt";
+    char *new_sub_file_name = "test_file.srt";
     char init_time[TIME_CHARS], end_time[TIME_CHARS], sub_counter[SUB_COUNTER_CHARS];
+    char ch, ch_after_new_line;
     int init_time_ms, end_time_ms;
     int delay = -500;
     FILE *fp1, *fp2;
@@ -28,18 +29,30 @@ int main(void){
         init_time_ms = time_to_int(init_time);
         end_time_ms = time_to_int(end_time);
 
-        // Writing on the new file
+        // Write timestamps on the new file.
         fprintf(fp2, "%s", sub_counter);
         time_to_text(init_time_ms + delay, fp2);
         fprintf(fp2, " --> ");
         time_to_text(end_time_ms + delay, fp2);
         fputc('\n', fp2);
-
+        // Write text on the new file.
         while(1) {
-            if(fgetc(fp1) == '\n') {// First '\n'
-                if (fgetc(fp1) == '\n' || feof(fp1)) { // Second '\n' in the row means the end of the subtitle.
+            ch = fgetc(fp1);
+            // First '\n'
+            if(ch == '\n') {
+                fputc(ch, fp2);
+                ch_after_new_line = fgetc(fp1);
+                // Second '\n' in the row means the end of the subtitle.
+                if (ch_after_new_line == '\n' || feof(fp1)) {
+                    fputc(ch_after_new_line, fp2);
                     break;
                 }
+                else {
+                    fputc(ch_after_new_line, fp2);
+                }
+            }
+            else {// Copy fp1 to fp2
+                fputc(ch, fp2);
             }
         }
     }
@@ -49,7 +62,7 @@ int main(void){
     return 0;
 }
 
-int time_to_int(char *time_str){
+int time_to_int(const char *time_str){
     int hh, mm, ss, xxx, total;
 
     sscanf(time_str, "%d:%d:%d,%d", &hh, &mm, &ss, &xxx);
