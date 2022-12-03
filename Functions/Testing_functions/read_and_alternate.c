@@ -23,7 +23,7 @@ int main(void){
 
     while(!feof(fp1)) {
         fgets(sub_counter, SUB_COUNTER_CHARS, fp1);// sub_counter contains the '\n'.
-        if (strcmp(sub_counter, "\n") == 0) break;
+        if (strcmp(sub_counter, "\n") == 0 || strcmp(sub_counter, "") == 0 || feof(fp1)) break;
         
         fscanf(fp1, "%s --> %s", init_time, end_time); fgetc(fp1);
         init_time_ms = time_to_int(init_time);

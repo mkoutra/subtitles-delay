@@ -73,7 +73,7 @@ int add_delay_to_file(const char *fname, int delay){
          * file has ended (in plenty .srt files, the end of file is 
          * denoted by consecutive carriage returns).
          */
-        if (strcmp(sub_counter, "\n") == 0) break;
+        if (strcmp(sub_counter, "\n") == 0 || strcmp(sub_counter, "") == 0 || feof(fp1)) break;
         
         //read timestamps
         fscanf(fp1, "%s --> %s", init_time, end_time); fgetc(fp1);

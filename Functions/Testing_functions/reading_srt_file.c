@@ -35,7 +35,7 @@ int main(void){
          * file has ended (in plenty srt files, the end of the file is 
          * denoted by consecutive carriage returns).
          */
-        if (strcmp(sub_counter, "\n") == 0) break;
+        if (strcmp(sub_counter, "\n") == 0 || strcmp(sub_counter, "") == 0 || feof(fp1)) break;
         
         fscanf(fp1, "%s --> %s", init_time, end_time); fgetc(fp1);
         fprintf(fp2, "%s%s --> %s\n", sub_counter, init_time, end_time);
