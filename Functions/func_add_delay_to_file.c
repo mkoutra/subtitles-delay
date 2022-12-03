@@ -5,20 +5,9 @@
 #include <string.h>
 
 #define TIME_CHARS 13 // Time is expressed with 12 characters (hh:mm:ss,xxx).
-#define SUB_COUNTER_CHARS 6 // characters to store the subtitle counter. Most srt files contain ~1200 subtitles.
-
-int time_to_int(const char*);
-void time_to_text(int, FILE*);
-int add_delay_to_file(const char *, int);
-
-int main(void){
-    char *file_name = "subfile.srt";
-    int delay = 17000;
-
-    add_delay_to_file(file_name, delay);
-
-    return 0;
-}
+#define SUB_COUNTER_CHARS 6 /* characters to store the subtitle counter. 
+                             * Most srt files contain ~1200 subtitles.
+                             */
 
 /*
  * Reads time with format: hh:mm:ss,xxx
