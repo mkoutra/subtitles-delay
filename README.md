@@ -17,6 +17,7 @@ You can create the `subtitle_delay` executable using one of the following method
    ```console
    gcc -g main.c sub_delay.c sub_delay.h -o subtitle_delay.exe
    ```
+Note: An executable for Linux x86_64 is provided in the corresponding directory.
 
 ## ATTENTION
 Currently, the program assumes there is only **one .srt** subtitle file in the corresponding directory. Ensure there is **only one** file with a **.srt** extension in the current director.
