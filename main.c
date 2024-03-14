@@ -1,3 +1,11 @@
+/*
+ Main function of subtitles delay project.
+
+ ----------------------------------
+ Michail E. Koutrakis
+ Github: https://github.com/mkoutra
+*/
+
 #include <stdlib.h>
 #include <string.h>
 
