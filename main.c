@@ -1,5 +1,5 @@
 /*
- Main function of subtitles delay project.
+ Main function of subtitles delay tool.
 
  ----------------------------------
  Michail E. Koutrakis
@@ -12,23 +12,41 @@
 #include "sub_delay.h"
 
 int main(void){
-    char *subtitle_fname;
+    Sub_files *all_subfiles = NULL;
+    int n_choice = 0;
+    char* fname_choice = NULL;
     char tmp_fname[] = "tmp_fname.srt";
     int delay_ms = -1;
     
-    /* The first srt file found inside the current directory. */
-    subtitle_fname = find_srt_file();
+    /* The srt files found inside the current directory. */
+    all_subfiles = find_all_subs();
 
-    if(subtitle_fname != NULL){
-        printf("Subtitle file found --> %s\n", subtitle_fname);
-    }
-    else {
-        fprintf(stderr, "*** No .srt file found! ***\n");
+    if (all_subfiles == NULL) {
+        printf("*** No .srt file found! ***\n");
+        printf("Press [ENTER] to exit... ");
+        getchar();
         return 1;
     }
 
-    printf("- Enter delay (+/-) in milliseconds.\n");
-    printf("- Delay: ");
+    printf("- Subtitles found in current directory: %d\n", all_subfiles->n);
+
+    for (int i = 0; i < all_subfiles->n; ++i) {
+        printf("  (%d) %s\n", i + 1, all_subfiles->filenames[i]);
+    }
+    while (1) {
+        printf("\n- Select a file by typing its number: ");
+        scanf("%d", &n_choice); getchar();
+
+        if (n_choice < 1 || n_choice > all_subfiles->n) {
+            printf("Invalid number choice. Please try again\n");
+        }
+        else {
+            fname_choice = all_subfiles->filenames[n_choice - 1];
+            break;
+        }
+    }
+
+    printf("- Enter delay (+/-) in milliseconds: ");
     
     while (1) {
         scanf("%d", &delay_ms);
@@ -36,24 +54,21 @@ int main(void){
         if (delay_ms >= MIN_DELAY_MS && delay_ms <= MAX_DELAY_MS) {
             break;
         }
-        else if (delay_ms == -1) {
-            printf("Closing...\n");
-            return 0;
+        else {
+            printf("Invalid delay. Please try again: ");
         }
-        fprintf(stderr, "Invalid delay given. Please try again.\n");
     }
 
-    add_delay_to_file(subtitle_fname, tmp_fname, delay_ms);
-    rename_subtitle_file(subtitle_fname, tmp_fname);
+    add_delay_to_file(fname_choice, tmp_fname, delay_ms);
+    rename_subtitle_file(fname_choice, tmp_fname);
 
-    printf("------------------------------------------------\n");
-    printf("%d ms delay added to %s!\n", delay_ms, subtitle_fname);
-    printf("Original file renamed to --> \"old_%s\"\n", subtitle_fname);
-    printf("------------------------------------------------\n");
-    printf("Press [ENTER] to exit... ");
+    printf("\n- %d ms delay added to \"%s\"\n", delay_ms, fname_choice);
+    printf("- Original file renamed to --> \"old_%s\"\n", fname_choice);
+    printf("\nPress [ENTER] to exit... ");
     getchar();
 
-    free(subtitle_fname);
+    /* Deallocate memory */
+    destroy_Sub_files(all_subfiles);
 
     return 0;
 }

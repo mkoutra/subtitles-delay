@@ -13,29 +13,74 @@
 #include "sub_delay.h"
 
 /*
- * Returns the name of the .srt file in the current directory.
- * Assumes the directory contains a maximum of ONE .srt file.
- * If no file is found, returns NULL.
- * After usage, the string returned needs to be deallocated.
+ * Returns a dynamically allocated Sub_files struct
+ * containing all the .srt filenames found in the current directory.
 */
-char *find_srt_file(void) {
-    char *search_word = ".srt";
-    char *file_found;
+Sub_files* find_all_subs(void) {
     DIR *folder;
-    struct dirent *entry;
+    struct dirent* entry;
+    char *search_word = ".srt";
+    char *fname = NULL;
+    int i = 0;
+    Sub_files* subtitle_names;
+    
+    subtitle_names = (Sub_files*) malloc(sizeof(Sub_files));
+    subtitle_names->n = 0;
 
     folder = opendir(".");
+    if (folder == NULL) {
+        fprintf(stderr, "Error in opening current directory.\n");
+        return NULL;
+    }
 
+    /* Find the number of files containing the search word*/
     while( (entry = readdir(folder)) ){
         if (strstr(entry->d_name, search_word) != NULL){
-            file_found = (char*) malloc(strlen(entry->d_name) + 1);
-            strcpy(file_found, entry->d_name);
-            
-            return file_found;
+            subtitle_names->n++;
         }
     }
 
-    return NULL;
+    closedir(folder);
+
+    if (subtitle_names->n == 0) {
+        fprintf(stderr, "No subtitle file found.\n");
+        return NULL;
+    }
+
+    /* Allocate the array to store the subtitle filenames found */
+    subtitle_names->filenames = (char**)malloc(subtitle_names->n * sizeof(char*));
+
+    /* Save filenames on Sub_files struct */
+    folder = opendir(".");
+    if (folder == NULL) {
+        fprintf(stderr, "Error in opening current directory.\n");
+        return NULL;
+    }
+
+    /* Copy filename to Sub_files's filename array */
+    while( (entry = readdir(folder)) ){
+        if (strstr(entry->d_name, search_word) != NULL){
+            fname = (char*) malloc(strlen(entry->d_name) + 1);
+            strcpy(fname, entry->d_name);
+            subtitle_names->filenames[i++] = fname;
+        }
+    }
+    closedir(folder);
+
+    return subtitle_names;
+}
+
+/* Deallocate the Sub_files struct given. */
+void destroy_Sub_files(Sub_files* sfiles) {
+    /* Deallocate the strings of filenames array. */
+    for (int i = 0; i < sfiles->n; ++i) {
+        free(sfiles->filenames[i]);
+    }
+
+    /* Deallocate the array */
+    free(sfiles->filenames);
+
+    free(sfiles);
 }
 
 /*
@@ -139,7 +184,7 @@ int add_delay_to_segment(FILE* input_fp, FILE* output_fp, int delay_ms) {
     fgets(sub_id, SUB_ID_MAX_LENGTH, input_fp);
 
     if (strcmp(sub_id, "\n") == 0 || strcmp(sub_id, "\r\n") == 0) {
-        fprintf(stderr, "No new segment found\n");
+        // fprintf(stderr, "No new segment found\n");
         return -1;
     }
 

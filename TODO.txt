@@ -1,11 +1,5 @@
 - Add an option for other type of subtitle files, for example ".sub".
 
-- Handle the case of more than one .srt files inside the directory.
-   Probably, a struct for the .srts files found can be used associating
-   a number to every file found. The user will be able to choose
-   the file to alternate by passing the number as the input.
-   An idea is to store those structs in a linked list.  
-
 - Possible bug? --> What happens when the delay is negative and 
    its absolute value is larger than a timestamp (usually timestamps in the beginning of the film). 
    VLC does not complain when a timestamp is negative, but should I try to avoid it?

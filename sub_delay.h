@@ -16,16 +16,26 @@
 #define OLD_PREFIX_LENGTH 5     /* old_\0 */
 #define SUB_ID_MAX_LENGTH 7     /* Subtitle id's string length*/
 #define TIME_LINE_MAX_LENGTH 40 /* Length of line containing the timestamps */ 
-#define MIN_DELAY_MS 0          /* Minimum valid delay given by user */
+#define MIN_DELAY_MS -300000    /* Minimum valid delay given by user (5 min)*/
 #define MAX_DELAY_MS 300000     /* Maximum valid delay given by user (5 min)*/
 
+/* Describes the subtitle files found */
+typedef struct files_found {
+    int n;              /* Number of files found */
+    char **filenames;   /* Array containing filenames */
+} Sub_files;
+
 /*
- * Returns the name of the .srt file in the current directory.
- * Assumes the directory contains a maximum of ONE .srt file.
- * If no file is found, returns NULL.
- * After usage, the string returned needs to be deallocated.
+ * Returns a dynamically allocated Sub_files struct
+ * containing all the .srt filenames found in the current directory.
 */
-char *find_srt_file(void);
+Sub_files* find_all_subs(void);
+
+/*
+ * Deallocate the Sub_files struct given.
+ * It is assumed that it was dynamically allocated.
+*/
+void destroy_Sub_files(Sub_files* sfiles);
 
 /*
  * Transforms time format "hh:mm:ss,xxx" to milliseconds.
