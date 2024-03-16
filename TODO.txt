@@ -1,5 +1,0 @@
-- Add an option for other type of subtitle files, for example ".sub".
-
-- Possible bug? --> What happens when the delay is negative and 
-   its absolute value is larger than a timestamp (usually timestamps in the beginning of the film). 
-   VLC does not complain when a timestamp is negative, but should I try to avoid it?
