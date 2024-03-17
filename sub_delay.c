@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+#include <stdbool.h>
 
 #include "sub_delay.h"
 
@@ -249,6 +250,7 @@ int add_delay_to_file(const char* input_fname,
 
     fclose(input_fp);
     fclose(output_fp);
+    printf("- %d ms delay added to \"%s\"\n", delay, input_fname);
 
     return 0;
 }
@@ -281,6 +283,81 @@ int rename_subtitle_file(char* init_fname, char* tmp_fname) {
     }
 
     free(old_prefix_fname);
+    printf("- Original file renamed to --> \"old_%s\"\n", init_fname);
 
     return 0;
+}
+
+/*
+ * Checks if the string given represents an integer
+ * Note: It does NOT ignore whitespaces.
+*/
+bool is_number(const char *str) {
+    if (str == NULL || *str == '\0') return false;
+
+    char *endptr;
+    strtol(str, &endptr, 10);
+
+    /*
+    * If endptr points to the null terminator, then the
+    * entire input was parsed successfully as a number.
+    */
+    return *endptr == '\0';
+}
+
+/*
+ * Asks a user to choose among the subtitle files and returns its choice.
+ * The number of available subtitle files must be passed in n_files. 
+*/
+int get_user_file_choice(int n_files) {
+    char input[MAX_USER_INPUT_SIZE];
+    int n_choice = -1;
+    while (1) {
+        printf("\n- Select a file by typing its number: ");
+        fgets(input, MAX_USER_INPUT_SIZE, stdin);
+        input[strcspn(input, "\r\n")] = '\0'; /* Remove trailing whitespace */
+
+        if (!is_number(input)) {
+            printf("Invalid input. Please try again.\n");
+            continue;
+        }
+        
+        n_choice = atoi(input);
+
+        if (n_choice < 1 || n_choice > n_files) {
+            printf("Invalid number choice. Please try again\n");
+            continue;
+        }
+
+        return n_choice;
+    }
+}
+
+/*
+ * Ask user to add delay in milliseconds to
+ * the file specified and returns its answer.
+*/
+int get_user_delay(void) {
+    int delay_ms;
+    char input[MAX_USER_INPUT_SIZE];
+
+    while (1) {
+        printf("- Enter delay (+/-) in milliseconds: ");
+        fgets(input, MAX_USER_INPUT_SIZE, stdin);
+        input[strcspn(input, "\r\n")] = '\0'; /* Remove trailing whitespace */
+
+        if (!is_number(input)) {
+            printf("Invalid input. Please try again.\n");
+            continue;
+        }
+        
+        delay_ms = atoi(input);
+
+        if (delay_ms < MIN_DELAY_MS || delay_ms > MAX_DELAY_MS) {
+            printf("Invalid delay. Please try again: ");
+            continue;
+        }
+
+        return delay_ms;
+    }
 }

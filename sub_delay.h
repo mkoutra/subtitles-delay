@@ -12,12 +12,13 @@
 #include <stdio.h>
 
 #define TIMESTAMPS_CHARS 13     /* hh:mm:ss,xxx\0 */
-#define LINE_MAX_SIZE 100       /* Max-length of subtitle text line*/
+#define LINE_MAX_SIZE 100       /* Max length of subtitle text line*/
 #define OLD_PREFIX_LENGTH 5     /* old_\0 */
 #define SUB_ID_MAX_LENGTH 7     /* Subtitle id's string length*/
 #define TIME_LINE_MAX_LENGTH 40 /* Length of line containing the timestamps */ 
 #define MIN_DELAY_MS -300000    /* Minimum valid delay given by user (5 min)*/
 #define MAX_DELAY_MS 300000     /* Maximum valid delay given by user (5 min)*/
+#define MAX_USER_INPUT_SIZE 10  /* Max chars to be read when asking for input*/
 
 /* Describes the subtitle files found */
 typedef struct files_found {
@@ -85,5 +86,23 @@ int add_delay_to_file(const char* input_fname, const char* output_fname, int del
  * Returns 0 if successful, otherwise -1.
 */
 int rename_subtitle_file(char* init_fname, char* tmp_fname);
+
+/*
+ * Checks if the string given represents an integer
+ * Note: It does NOT ignore whitespaces.
+*/
+bool is_number(const char *str);
+
+/*
+ * Asks a user to choose among the subtitle files and returns its choice.
+ * The number of available subtitle files must be passed in n_files. 
+*/
+int get_user_file_choice(int n_files);
+
+/*
+ * Ask user to add delay in milliseconds to
+ * the file specified and returns its answer.
+*/
+int get_user_delay(void);
 
 #endif /* SUB_DELAY_H */

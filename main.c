@@ -8,8 +8,10 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "sub_delay.h"
+
 
 int main(void){
     Sub_files *all_subfiles = NULL;
@@ -22,7 +24,9 @@ int main(void){
     all_subfiles = find_all_subs();
 
     if (all_subfiles == NULL) {
-        printf("*** No .srt file found! ***\n");
+        printf("- No subtitle file found.\n");
+        printf("- Please place the executable in a \
+                directory containing subtitle files.\n");
         printf("Press [ENTER] to exit... ");
         getchar();
         return 1;
@@ -33,37 +37,28 @@ int main(void){
     for (int i = 0; i < all_subfiles->n; ++i) {
         printf("  (%d) %s\n", i + 1, all_subfiles->filenames[i]);
     }
-    while (1) {
-        printf("\n- Select a file by typing its number: ");
-        scanf("%d", &n_choice); getchar();
 
-        if (n_choice < 1 || n_choice > all_subfiles->n) {
-            printf("Invalid number choice. Please try again\n");
-        }
-        else {
-            fname_choice = all_subfiles->filenames[n_choice - 1];
-            break;
-        }
+    /* Single subtitle file inside current directory */
+    if (all_subfiles->n == 1) {
+        n_choice = 1;
+    }
+    else {
+        /* Ask user to choose among the available files */
+        n_choice = get_user_file_choice(all_subfiles->n);
     }
 
-    printf("- Enter delay (+/-) in milliseconds: ");
-    
-    while (1) {
-        scanf("%d", &delay_ms);
-        getchar();
-        if (delay_ms >= MIN_DELAY_MS && delay_ms <= MAX_DELAY_MS) {
-            break;
-        }
-        else {
-            printf("Invalid delay. Please try again: ");
-        }
-    }
+    /* File chosen*/
+    fname_choice = all_subfiles->filenames[n_choice - 1];
 
+    /* Ask user for the desired delay */
+    delay_ms = get_user_delay();
+
+    /* Add delay to the corresponding file */
     add_delay_to_file(fname_choice, tmp_fname, delay_ms);
+    
+    /* Rename temp to keep both the initial and the modified subtitle file */
     rename_subtitle_file(fname_choice, tmp_fname);
 
-    printf("\n- %d ms delay added to \"%s\"\n", delay_ms, fname_choice);
-    printf("- Original file renamed to --> \"old_%s\"\n", fname_choice);
     printf("\nPress [ENTER] to exit... ");
     getchar();
 
