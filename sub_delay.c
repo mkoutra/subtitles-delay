@@ -6,12 +6,28 @@
  Github: https://github.com/mkoutra
 */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <dirent.h>
 #include <stdbool.h>
+#include <dirent.h>
 
 #include "sub_delay.h"
+
+/*****************************************************************************/
+/**************************** Find subtitles *********************************/
+/*****************************************************************************/
+
+/* Checks if the given filename has the specified extension. */
+bool check_extension(const char* fname, const char* ext) {
+    int fname_size = strlen(fname);
+    int ext_size = strlen(ext);
+
+    if (strcmp(fname + fname_size - ext_size, ext) == 0) {
+        return true;
+    }
+    return false;
+}
 
 /*
  * Returns a dynamically allocated Sub_files struct
@@ -20,13 +36,13 @@
 Sub_files* find_all_subs(void) {
     DIR *folder;
     struct dirent* entry;
-    char *search_word = ".srt";
+    char* sub_extensions[N_SUB_EXTENSIONS] = {".srt", ".sub"};
     char *fname = NULL;
-    int i = 0;
-    Sub_files* subtitle_names;
+    int f_counter = 0;
+    Sub_files* subtitle_files;
     
-    subtitle_names = (Sub_files*) malloc(sizeof(Sub_files));
-    subtitle_names->n = 0;
+    subtitle_files = (Sub_files*) malloc(sizeof(Sub_files));
+    subtitle_files->n = 0;
 
     folder = opendir(".");
     if (folder == NULL) {
@@ -34,24 +50,27 @@ Sub_files* find_all_subs(void) {
         return NULL;
     }
 
-    /* Find the number of files containing the search word*/
+    /* Find the number of files containing a subtitle extension */
     while( (entry = readdir(folder)) ){
-        if (strstr(entry->d_name, search_word) != NULL){
-            subtitle_names->n++;
+        /* Check for all extensions */
+        for (int i = 0; i < N_SUB_EXTENSIONS; ++i) {
+            if (check_extension(entry->d_name, sub_extensions[i])) {
+                subtitle_files->n++;
+            }
         }
     }
 
     closedir(folder);
 
-    if (subtitle_names->n == 0) {
-        fprintf(stderr, "No subtitle file found.\n");
+    /* No subtitle file found */
+    if (subtitle_files->n == 0) {
+        // fprintf(stderr, "No subtitle file found.\n");
         return NULL;
     }
 
     /* Allocate the array to store the subtitle filenames found */
-    subtitle_names->filenames = (char**)malloc(subtitle_names->n * sizeof(char*));
+    subtitle_files->filenames = (char**)malloc(subtitle_files->n * sizeof(char*));
 
-    /* Save filenames on Sub_files struct */
     folder = opendir(".");
     if (folder == NULL) {
         fprintf(stderr, "Error in opening current directory.\n");
@@ -60,15 +79,18 @@ Sub_files* find_all_subs(void) {
 
     /* Copy filename to Sub_files's filename array */
     while( (entry = readdir(folder)) ){
-        if (strstr(entry->d_name, search_word) != NULL){
-            fname = (char*) malloc(strlen(entry->d_name) + 1);
-            strcpy(fname, entry->d_name);
-            subtitle_names->filenames[i++] = fname;
+        /* Check for all extensions */
+        for (int i = 0; i < N_SUB_EXTENSIONS; ++i) {
+            if (check_extension(entry->d_name, sub_extensions[i])) {
+                fname = (char*) malloc(strlen(entry->d_name) + 1);
+                strcpy(fname, entry->d_name);
+                subtitle_files->filenames[f_counter++] = fname;  
+            }
         }
     }
     closedir(folder);
 
-    return subtitle_names;
+    return subtitle_files;
 }
 
 /* Deallocate the Sub_files struct given. */
@@ -83,6 +105,10 @@ void destroy_Sub_files(Sub_files* sfiles) {
 
     free(sfiles);
 }
+
+/*****************************************************************************/
+/*************************** Modify subfiles *********************************/
+/*****************************************************************************/
 
 /*
  * Transforms time format "hh:mm:ss,xxx" to milliseconds.
@@ -288,6 +314,10 @@ int rename_subtitle_file(char* init_fname, char* tmp_fname) {
     return 0;
 }
 
+/*****************************************************************************/
+/***************************** Get user input ********************************/
+/*****************************************************************************/
+
 /*
  * Checks if the string given represents an integer
  * Note: It does NOT ignore whitespaces.
@@ -315,7 +345,9 @@ int get_user_file_choice(int n_files) {
     while (1) {
         printf("\n- Select a file by typing its number: ");
         fgets(input, MAX_USER_INPUT_SIZE, stdin);
-        input[strcspn(input, "\r\n")] = '\0'; /* Remove trailing whitespace */
+
+        /* Remove trailing whitespace */
+        input[strcspn(input, "\r\n")] = '\0';
 
         if (!is_number(input)) {
             printf("Invalid input. Please try again.\n");
@@ -344,7 +376,9 @@ int get_user_delay(void) {
     while (1) {
         printf("- Enter delay (+/-) in milliseconds: ");
         fgets(input, MAX_USER_INPUT_SIZE, stdin);
-        input[strcspn(input, "\r\n")] = '\0'; /* Remove trailing whitespace */
+        
+        /* Remove trailing whitespace */
+        input[strcspn(input, "\r\n")] = '\0';
 
         if (!is_number(input)) {
             printf("Invalid input. Please try again.\n");
@@ -359,5 +393,14 @@ int get_user_delay(void) {
         }
 
         return delay_ms;
+    }
+}
+
+/* Print the filenames of subtitle files located in the current directory. */
+void print_subfiles(Sub_files* sfiles) {
+    printf("- Subtitles found in current directory: %d\n", sfiles->n);
+
+    for (int i = 0; i < sfiles->n; ++i) {
+        printf("  (%d) %s\n", i + 1, sfiles->filenames[i]);
     }
 }

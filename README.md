@@ -1,5 +1,5 @@
 # Subtitle Delay
-This tool adds a time delay to a .srt subtitle file.
+**Subtitle Delay** is a simple tool designed to add a time delay to subtitle files. It supports commonly used subtitle formats such as `.srt` and `.sub`, allowing users to easily adjust the timing of subtitles for synchronization with audio or video content.
 
 ## Compiling
 You can create the `subtitle_delay` executable using one of the following methods:
@@ -22,12 +22,12 @@ You can create the `subtitle_delay` executable using one of the following method
 Executable files for x86_64 Linux and Windows are available in their respective directories.
 
 ## Usage
-- Place the executable in the directory with your subtitle files.
-- Run the program, and it will prompt you to select the subtitle file for modification.
-- Enter a time delay in **milliseconds** (1 millisecond = 0.001 seconds).
-- Positive delays move subtitles forward; negative ones move them backward.
-- The maximum delay is 5 minutes (300000 ms).
+1. Place the executable in the directory with your subtitle files.
+2. Run the executable. If multiple subtitle files are present in the execution directory, the program will prompt you to select the file for modification; otherwise, it will automatically modify the sole subtitle file in the current directory.
+3. Enter a time delay in **milliseconds** (1 millisecond = 0.001 seconds).
+   - Positive delays move subtitles forward; negative ones move them backward.
+   - The maximum delay is &plusmn; 5 minutes (&plusmn;300000 ms).
+4. The selected file will be modified, while the original version will remain available with the prefix "old_" added to its name.
 
 ## TODO
  - Implement an alternative usage with command-line arguments (argc and argv).
- - Handle the possibility of alternative subtitle file extensions, such as .sub and .txt.

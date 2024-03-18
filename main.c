@@ -12,7 +12,6 @@
 
 #include "sub_delay.h"
 
-
 int main(void){
     Sub_files *all_subfiles = NULL;
     int n_choice = 0;
@@ -20,23 +19,18 @@ int main(void){
     char tmp_fname[] = "tmp_fname.srt";
     int delay_ms = -1;
     
-    /* The srt files found inside the current directory. */
+    /* The subtitle files inside the current directory. */
     all_subfiles = find_all_subs();
 
     if (all_subfiles == NULL) {
-        printf("- No subtitle file found.\n");
-        printf("- Please place the executable in a \
-                directory containing subtitle files.\n");
-        printf("Press [ENTER] to exit... ");
+        printf("- No subtitle files found in the current directory.\n");
+        printf("- Please ensure that the executable is placed in a directory containing subtitle files.\n");
+        printf("- Press [ENTER] to exit...\n");
         getchar();
         return 1;
     }
 
-    printf("- Subtitles found in current directory: %d\n", all_subfiles->n);
-
-    for (int i = 0; i < all_subfiles->n; ++i) {
-        printf("  (%d) %s\n", i + 1, all_subfiles->filenames[i]);
-    }
+    print_subfiles(all_subfiles);
 
     /* Single subtitle file inside current directory */
     if (all_subfiles->n == 1) {
@@ -56,10 +50,10 @@ int main(void){
     /* Add delay to the corresponding file */
     add_delay_to_file(fname_choice, tmp_fname, delay_ms);
     
-    /* Rename temp to keep both the initial and the modified subtitle file */
+    /* Rename temp to keep both the initial and the modified file */
     rename_subtitle_file(fname_choice, tmp_fname);
 
-    printf("\nPress [ENTER] to exit... ");
+    printf("\nPress [ENTER] to exit...\n");
     getchar();
 
     /* Deallocate memory */
