@@ -235,7 +235,7 @@ int add_delay_to_segment(FILE* input_fp, FILE* output_fp, int delay_ms) {
     do {
         fgets(buffer, LINE_MAX_SIZE, input_fp);
         fprintf(output_fp, "%s", buffer);
-    } while(strcmp(buffer, "\n") != 0 && strcmp(buffer, "\r\n") != 0);
+    } while(strcmp(buffer, "\n") != 0 && strcmp(buffer, "\r\n") != 0 && !feof(input_fp));
 
     return 0;
 }
