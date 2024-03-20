@@ -207,14 +207,17 @@ int add_delay_to_segment(FILE* input_fp, FILE* output_fp, int delay_ms) {
     char buffer[LINE_MAX_SIZE];             /* A subtitle text line */        
     char time_line[TIME_LINE_MAX_LENGTH];   /* Line containing timestamps */
 
-    /* Read subtitle segment. */
-    fgets(sub_id, SUB_ID_MAX_LENGTH, input_fp);
-
-    if (strcmp(sub_id, "\n") == 0 || strcmp(sub_id, "\r\n") == 0) {
-        // fprintf(stderr, "No new segment found\n");
+    /* Read subtitle segment. fgets() returns NULL if EOF or error. */
+    if (fgets(sub_id, SUB_ID_MAX_LENGTH, input_fp) == NULL) {
         return -1;
     }
 
+    /* No new segment found. */
+    if (strcmp(sub_id, "\n") == 0 || strcmp(sub_id, "\r\n") == 0) {
+        return -1;
+    }
+
+    /* Read timestamps. */
     fgets(time_line, TIME_LINE_MAX_LENGTH, input_fp);
     sscanf(time_line, "%s --> %s", init_time_str, final_time_str);
 
@@ -224,18 +227,21 @@ int add_delay_to_segment(FILE* input_fp, FILE* output_fp, int delay_ms) {
         return -1;
     }
 
-    /* Write id and timestamps to output file */
+    /* Write id and timestamps to output file. */
     fprintf(output_fp, "%s", sub_id);
     fprintf(output_fp, "%s --> %s\n", init_time_str, final_time_str);
 
     /*
      * Read subtitle text from input file and write to output file.
      * An Empty line means end of segment.
-     */
+    */
     do {
-        fgets(buffer, LINE_MAX_SIZE, input_fp);
+        /* fgets returns NULL if EOF or error. */
+        if (fgets(buffer, LINE_MAX_SIZE, input_fp) == NULL) {
+            return -1;
+        }
         fprintf(output_fp, "%s", buffer);
-    } while(strcmp(buffer, "\n") != 0 && strcmp(buffer, "\r\n") != 0 && !feof(input_fp));
+    } while(strcmp(buffer, "\n") != 0 && strcmp(buffer, "\r\n") != 0);
 
     return 0;
 }
